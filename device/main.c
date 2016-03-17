@@ -1,12 +1,38 @@
 #include <msp430.h>
 
+#define LED BIT0
+
 int main(void)
 {
   WDTCTL = WDTPW | WDTHOLD;                 // Stop WDT
 
-  // GPIO Setup
+  // To avoid floating
   P1OUT = 0;
-  P1DIR = BIT0;                             // For LED
+  P2OUT = 0;
+  P3OUT = 0;
+  P4OUT = 0;
+  P5OUT = 0;
+  P6OUT = 0;
+  P7OUT = 0;
+  P8OUT = 0;
+  P9OUT = 0;
+  P10OUT = 0;
+  PJOUT = 0;
+
+  P1REN = ~0;
+  P2REN = ~0;
+  P3REN = ~0;
+  P4REN = ~0;
+  P5REN = ~0;
+  P6REN = ~0;
+  P7REN = ~0;
+  P8REN = ~0;
+  P9REN = ~0;
+  P10REN = ~0;
+  PJREN = ~0;
+
+  // GPIO Setup
+  P1DIR = LED;                              // For LED
 
   // Set up XT1
   PJSEL0 = BIT4 | BIT5;                     // For XT1
@@ -28,8 +54,10 @@ int main(void)
   // previously configured port settings
   PM5CTL0 &= ~LOCKLPM5;
 
+  SFRIE1 = OFIE;                            // Enable osc fault interrupt
+
   for (;;) {
-    __bis_SR_register(LPM3_bits + GIE);       // Enter LPM3, enable interrupts
+    __bis_SR_register(LPM3_bits + GIE);     // Enter LPM3, enable interrupts
   }
 }
 
@@ -42,7 +70,7 @@ __interrupt void RTC_ISR(void)
     case RTCIV_NONE:      break;            // Vector  0:  No pending interrupt
     case RTCIV_RTCOFIFG:  break;			// Vector  2:  Oscillator fault
     case RTCIV_RTCRDYIFG:                   // Vector  4:  RTC Ready
-      P1OUT ^= BIT0;                        // Toggle P1.0
+      P1OUT ^= LED;                         // Toggle P1.0
       break;
     case RTCIV_RTCTEVIFG: break;            // Vector  6:  RTC interval timer
     case RTCIV_RTCAIFG:   break;            // Vector  8:  RTC user alarm
@@ -50,5 +78,17 @@ __interrupt void RTC_ISR(void)
     case RTCIV_RT1PSIFG:  break;            // Vector  12:  RTC prescaler 1
     default: break;
   }
+}
+
+// Oscillator fault handler
+#pragma vector=UNMI_VECTOR
+__interrupt void UNMI_ISR(void)
+{
+  do
+  {
+    CSCTL5 &= ~LFXTOFFG;                    // Clear XT1 fault flag
+    SFRIFG1 &= ~OFIFG;
+    __delay_cycles(100);                    // Time for flag to set
+  } while (SFRIFG1 & OFIFG);                // Test oscillator fault flag
 }
 
