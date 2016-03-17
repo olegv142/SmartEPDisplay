@@ -96,8 +96,8 @@ void Init_LCD()
 {
     LCD_C_initParam initParams = {0};
     initParams.clockSource = LCD_C_CLOCKSOURCE_ACLK;
-    initParams.clockDivider = LCD_C_CLOCKDIVIDER_1;
-    initParams.clockPrescalar = LCD_C_CLOCKPRESCALAR_16;
+    initParams.clockDivider = LCD_C_CLOCKDIVIDER_8;
+    initParams.clockPrescalar = LCD_C_CLOCKPRESCALAR_32;
     initParams.muxRate = LCD_C_4_MUX;
     initParams.waveforms = LCD_C_LOW_POWER_WAVEFORMS;
     initParams.segments = LCD_C_SEGMENTS_ENABLED;
