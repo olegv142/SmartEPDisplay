@@ -1,4 +1,5 @@
 #include <msp430.h>
+#include "hal_LCD.h"
 
 #define LED BIT0
 
@@ -55,6 +56,9 @@ int main(void)
   PM5CTL0 &= ~LOCKLPM5;
 
   SFRIE1 = OFIE;                            // Enable osc fault interrupt
+
+  Init_LCD();
+  displayText("HELLO");
 
   for (;;) {
     __bis_SR_register(LPM3_bits + GIE);     // Enter LPM3, enable interrupts
