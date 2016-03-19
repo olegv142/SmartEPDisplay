@@ -122,7 +122,7 @@ public:
 
 	// output an image (PROGMEM data)
 	void image(const uint8_t *image_data) {
-		this->frame_data_13(image_data, EPD_inverse);
+		//this->frame_data_13(image_data, EPD_inverse);
 		this->frame_stage2();
 		this->frame_data_13(image_data, EPD_normal);
 	}
