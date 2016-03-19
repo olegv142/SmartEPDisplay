@@ -9,7 +9,7 @@
 typedef uint8_t byte;
 
 #define delayMicroseconds(us) __delay_cycles((us)*MCLK_MHz)
-#define delay(ms) delayMicroseconds((ms)*1000ULL)
+#define delay(ms) platform_delay_ms(ms)
 
 static inline unsigned long millis(void)
 {

@@ -66,4 +66,5 @@ __interrupt void UNMI_ISR(void)
 __interrupt void WDT_ISR(void)
 {
 	_platform_uptime += 16;
+	__bic_SR_register_on_exit(LPM_BITS);
 }

@@ -63,14 +63,12 @@ int main(void)
 #ifdef EPD_TEST
 	for (;;) {
 		show_chessboard_image(0);
-		__delay_cycles(60*MCLK_Hz);
+		platform_delay_ms(60*SEC);
 		show_lattice();
-		__delay_cycles(60*MCLK_Hz);
+		platform_delay_ms(60*SEC);
 	}
 #else
-	for (;;) {
-		__bis_SR_register(LPM3_bits + GIE); // Enter LPM3, enable interrupts
-	}
+	platform_idle_loop();
 #endif
 }
 

@@ -26,6 +26,33 @@ static inline unsigned long platform_uptime_ms(void)
 	return up;
 }
 
+#define LPM_BITS LPM3_bits
+
+static inline void platform_idle(void)
+{
+	__bis_SR_register(LPM_BITS + GIE); // Enter LPM3, enable interrupts
+}
+
+static inline void platform_idle_loop(void)
+{
+	for (;;) {
+		platform_idle();
+	}
+}
+
+#define SEC 1000UL
+
+static void platform_delay_ms(unsigned long ms)
+{
+	unsigned long start = platform_uptime_ms();
+	for (;;) {
+		platform_idle();
+		unsigned long elapsed = platform_uptime_ms() - start;
+		if (elapsed > ms)
+			break;
+	}
+}
+
 #ifdef __cplusplus
 }
 #endif
