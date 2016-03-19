@@ -24,21 +24,80 @@
 #define Delay_ms(ms) delay(ms)
 #define Delay_us(us) delayMicroseconds(us)
 
-// inline arrays
-#define ARRAY(type, ...) ((type[]){__VA_ARGS__})
-#define CU8(...) (ARRAY(const uint8_t, __VA_ARGS__))
+#define CU8(a, b) a, b
 
 // values for border byte
 #define BORDER_BYTE_BLACK 0xff
 #define BORDER_BYTE_WHITE 0xaa
 #define BORDER_BYTE_NULL  0x00
 
+extern SPIClass* EPD_SPI;
+
+#define SPI (*EPD_SPI)
+
 static void SPI_on();
 static void SPI_off();
-static void SPI_put(uint8_t c);
-static void SPI_send(uint8_t cs_pin, const uint8_t *buffer, uint16_t length);
-static uint8_t SPI_read(uint8_t cs_pin, const uint8_t *buffer, uint16_t length);
 
+static inline void SPI_put(uint8_t c) {
+	SPI.transfer(c);
+}
+
+static inline void SPI_send(uint8_t cs_pin, uint8_t tag, uint8_t data, uint16_t length) {
+	// CS low
+	digitalWrite(cs_pin, LOW);
+
+	SPI.transfer(tag);
+	SPI.transfer(data);
+
+	// CS high
+	digitalWrite(cs_pin, HIGH);
+}
+
+static inline void SPI_send_buff(uint8_t cs_pin, uint8_t const* data, uint16_t length) {
+	// CS low
+	digitalWrite(cs_pin, LOW);
+
+	for (; length; --length, ++data) {
+		SPI.transfer(*data);
+	}
+
+	// CS high
+	digitalWrite(cs_pin, HIGH);
+}
+
+static inline uint8_t SPI_read(uint8_t cs_pin, uint8_t tag, uint8_t data, uint16_t length) {
+	// CS low
+	digitalWrite(cs_pin, LOW);
+
+	SPI.transfer(tag);
+	uint8_t result = SPI.transfer(data);
+
+	// CS high
+	digitalWrite(cs_pin, HIGH);
+	return result;
+}
+
+static inline void SPI_on() {
+	SPI.end();
+	SPI.begin();
+	SPI.setBitOrder(MSBFIRST);
+	SPI.setDataMode(SPI_MODE0);
+	SPI.setClockDivider(SPI_CLOCK_DIV2);
+	SPI_put(0x00);
+	SPI_put(0x00);
+	Delay_us(10);
+}
+
+static inline void SPI_off() {
+	// SPI.begin();
+	// SPI.setBitOrder(MSBFIRST);
+	SPI.setDataMode(SPI_MODE0);
+	// SPI.setClockDivider(SPI_CLOCK_DIV2);
+	SPI_put(0x00);
+	SPI_put(0x00);
+	Delay_us(10);
+	SPI.end();
+}
 
 EPD_Class::EPD_Class(EPD_size size,
 		     int panel_on_pin,
@@ -189,9 +248,7 @@ void EPD_Class::begin() {
 
 	// read the COG ID
 	int cog_id = SPI_read(this->EPD_Pin_EPD_CS, CU8(0x71, 0x00), 2);
-	cog_id = SPI_read(this->EPD_Pin_EPD_CS, CU8(0x71, 0x00), 2);
-
-	if (0x02 != (0x0f & cog_id)) {
+	if (0x12 != cog_id) {
 		this->status = EPD_UNSUPPORTED_COG;
 		this->power_off();
 		return;
@@ -216,7 +273,7 @@ void EPD_Class::begin() {
 
 	// channel select
 	SPI_send(this->EPD_Pin_EPD_CS, CU8(0x70, 0x01), 2);
-	SPI_send(this->EPD_Pin_EPD_CS, this->channel_select, this->channel_select_length);
+	SPI_send_buff(this->EPD_Pin_EPD_CS, this->channel_select, this->channel_select_length);
 
 	// high power mode osc
 	SPI_send(this->EPD_Pin_EPD_CS, CU8(0x70, 0x07), 2);
@@ -582,8 +639,7 @@ void EPD_Class::line(uint16_t line, const uint8_t *data, uint8_t fixed_value,
        if (set_voltage_limit) {
 	       // charge pump voltage level reduce voltage shift
 	       SPI_send(this->EPD_Pin_EPD_CS, CU8(0x70, 0x04), 2);
-	       uint8_t tmp[] = {0x72, this->voltage_level};
-	       SPI_send(this->EPD_Pin_EPD_CS, tmp, 2);
+	       SPI_send(this->EPD_Pin_EPD_CS, CU8(0x72, this->voltage_level), 2);
        }
 
        // send data
@@ -682,64 +738,3 @@ void EPD_Class::line(uint16_t line, const uint8_t *data, uint8_t fixed_value,
 }
 
 
-static void SPI_on() {
-	SPI.end();
-	SPI.begin();
-	SPI.setBitOrder(MSBFIRST);
-	SPI.setDataMode(SPI_MODE0);
-	SPI.setClockDivider(SPI_CLOCK_DIV2);
-	SPI_put(0x00);
-	SPI_put(0x00);
-	Delay_us(10);
-}
-
-
-static void SPI_off() {
-	// SPI.begin();
-	// SPI.setBitOrder(MSBFIRST);
-	SPI.setDataMode(SPI_MODE0);
-	// SPI.setClockDivider(SPI_CLOCK_DIV2);
-	SPI_put(0x00);
-	SPI_put(0x00);
-	Delay_us(10);
-	SPI.end();
-}
-
-
-static void SPI_put(uint8_t c) {
-	SPI.transfer(c);
-}
-
-
-static void SPI_send(uint8_t cs_pin, const uint8_t *buffer, uint16_t length) {
-	// CS low
-	digitalWrite(cs_pin, LOW);
-
-	// send all data
-	for (uint16_t i = 0; i < length; ++i) {
-		SPI_put(*buffer++);
-	}
-
-	// CS high
-	digitalWrite(cs_pin, HIGH);
-}
-
-static uint8_t SPI_read(uint8_t cs_pin, const uint8_t *buffer, uint16_t length) {
-	// CS low
-	digitalWrite(cs_pin, LOW);
-
-	uint8_t rbuffer[4];
-	uint8_t result = 0;
-
-	// send all data
-	for (uint16_t i = 0; i < length; ++i) {
-		result = SPI.transfer(*buffer++);
-		if (i < 4) {
-			rbuffer[i] = result;
-		}
-	}
-
-	// CS high
-	digitalWrite(cs_pin, HIGH);
-	return result;
-}

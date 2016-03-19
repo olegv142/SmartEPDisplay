@@ -302,7 +302,7 @@
         <option>
           <name>CCAllowList</name>
           <version>1</version>
-          <state>00000</state>
+          <state>10010</state>
         </option>
         <option>
           <name>CCObjUseModuleName</name>
@@ -391,7 +391,10 @@
         <option>
           <name>newCCIncludePaths</name>
           <state>$PROJ_DIR$\driverlib</state>
+          <state>$PROJ_DIR$\compat</state>
+          <state>$PROJ_DIR$\epd</state>
           <state>$PROJ_DIR$\lcd</state>
+          <state>$PROJ_DIR$\</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -419,7 +422,7 @@
         </option>
         <option>
           <name>CCOptLevel</name>
-          <state>1</state>
+          <state>2</state>
         </option>
         <option>
           <name>CCOptStrategy</name>
@@ -428,7 +431,7 @@
         </option>
         <option>
           <name>CCOptLevelSlave</name>
-          <state>1</state>
+          <state>2</state>
         </option>
         <option>
           <name>CInput</name>
@@ -446,7 +449,7 @@
         </option>
         <option>
           <name>IccLang</name>
-          <state>0</state>
+          <state>2</state>
         </option>
         <option>
           <name>IccCDialect</name>
@@ -458,7 +461,7 @@
         </option>
         <option>
           <name>IccCppDialect</name>
-          <state>1</state>
+          <state>0</state>
         </option>
         <option>
           <name>CCPUTAG</name>
@@ -2252,6 +2255,15 @@
     </settings>
   </configuration>
   <file>
+    <name>$PROJ_DIR$\compat\Arduino.c</name>
+  </file>
+  <file>
+    <name>$PROJ_DIR$\epd\ep_display.cpp</name>
+  </file>
+  <file>
+    <name>$PROJ_DIR$\epd\EPD2.cpp</name>
+  </file>
+  <file>
     <name>$PROJ_DIR$\lcd\hal_LCD.c</name>
   </file>
   <file>
@@ -2259,6 +2271,9 @@
   </file>
   <file>
     <name>$PROJ_DIR$\main.c</name>
+  </file>
+  <file>
+    <name>$PROJ_DIR$\platform.c</name>
   </file>
 </project>
 

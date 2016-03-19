@@ -105,7 +105,7 @@ public:
 
 	void setFactor(int temperature = 25);
 
-	const bool operator!() const {
+	bool operator!() const {
 		return EPD_OK != this->status;
 	}
 
