@@ -5,7 +5,7 @@
 
 #define __MSP430_CPU__
 
-#define MCLK_MHz 1
+#define MCLK_MHz 8
 #define MCLK_Hz (MCLK_MHz*1000000ULL)
 
 #ifdef __cplusplus

@@ -36,7 +36,7 @@ void platform_init(void)
 
 	// Clock System Setup
 	CSCTL0_H = CSKEY >> 8;                    // Unlock CS registers
-	CSCTL1 = DCOFSEL_0;                       // Set DCO to 1MHz
+	CSCTL1 = DCOFSEL_6;                       // Set DCO to 8MHz
 	CSCTL2 = SELA__LFXTCLK | SELS__DCOCLK | SELM__DCOCLK;
 	CSCTL3 = DIVA__1 | DIVS__1 | DIVM__1;     // Set all dividers
 	CSCTL4 &= ~LFXTOFF;

@@ -63,9 +63,9 @@ int main(void)
 #ifdef EPD_TEST
 	for (;;) {
 		show_chessboard_image(0);
-		__delay_cycles(60000000);
+		__delay_cycles(60*MCLK_Hz);
 		show_lattice();
-		__delay_cycles(60000000);
+		__delay_cycles(60*MCLK_Hz);
 	}
 #else
 	for (;;) {
