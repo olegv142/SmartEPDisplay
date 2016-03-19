@@ -16,9 +16,8 @@
 #include <Arduino.h>
 #include <limits.h>
 
-#include <SPI.h>
-
 #include "EPD2.h"
+#include "EPD_Arduino.h"
 
 // delays - more consistent naming
 #define Delay_ms(ms) delay(ms)
@@ -30,13 +29,6 @@
 #define BORDER_BYTE_BLACK 0xff
 #define BORDER_BYTE_WHITE 0xaa
 #define BORDER_BYTE_NULL  0x00
-
-extern SPIClass* EPD_SPI;
-
-#define SPI (*EPD_SPI)
-
-static void SPI_on();
-static void SPI_off();
 
 static inline void SPI_put(uint8_t c) {
 	SPI.transfer(c);

@@ -1,37 +1,25 @@
 #include "ep_display.h"
-#include "Arduino.h"
-#include "SPI.h"
 #include "EPD2.h"
+#include "EPD_Arduino.h"
 
-#define EPD_PANEL_ON  IO_PIN(P2, 7)
-#define EPD_BORDER    IO_PIN(P2, 1)
-#define EPD_DISCHARGE IO_PIN(P2, 3)
-#define EPD_RESET     IO_PIN(P2, 6)
-#define EPD_BUSY      IO_PIN(P2, 2)
-#define EPD_CS        IO_PIN(P2, 5)
+// P2 pins
+#define EPD_PANEL_ON  BIT7
+#define EPD_BORDER    BIT1
+#define EPD_DISCHARGE BIT3
+#define EPD_RESET     BIT6
+#define EPD_BUSY      BIT2
+#define EPD_CS        BIT5
 
-#define EPD_OUT_BITS (uint8_t)(IO_BIT(EPD_PANEL_ON)|IO_BIT(EPD_BORDER)|IO_BIT(EPD_DISCHARGE)|IO_BIT(EPD_RESET)|IO_BIT(EPD_CS))
-#define EPD_IN_BITS  (uint8_t)(IO_BIT(EPD_BUSY))
-#define EPD_BITS     (uint8_t)(EPD_OUT_BITS|EPD_IN_BITS)
+#define EPD_OUT_BITS (EPD_PANEL_ON|EPD_BORDER|EPD_DISCHARGE|EPD_RESET|EPD_CS)
+#define EPD_IN_BITS  (EPD_BUSY)
+#define EPD_BITS     (EPD_OUT_BITS|EPD_IN_BITS)
 
 // P1 UCB0 pins
 #define EPD_MOSI BIT6
 #define EPD_MISO BIT7
 #define EPD_SCLK BIT4
 
-class EPD_SPI_Class : public SPIClass {
-public:
-	virtual void begin() { UCB0CTLW0 &= ~UCSWRST; }
-	virtual void end()   { UCB0CTLW0 |= UCSWRST; }
-	virtual byte transfer(byte data) { 
-			UCB0TXBUF = data;
-			while (UCB0STATW & UCBUSY) __no_operation();
-			return UCB0RXBUF;
-		}
-};
-
-static EPD_SPI_Class EPD_SPI_Inst;
-SPIClass* EPD_SPI = &EPD_SPI_Inst;
+SPI_EPD_Class EPD_SPI;
 
 static EPD_Class EPD_Inst(EPD_2_7,
 		  EPD_PANEL_ON,

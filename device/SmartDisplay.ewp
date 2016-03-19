@@ -2255,9 +2255,6 @@
     </settings>
   </configuration>
   <file>
-    <name>$PROJ_DIR$\compat\Arduino.c</name>
-  </file>
-  <file>
     <name>$PROJ_DIR$\epd\ep_display.cpp</name>
   </file>
   <file>
