@@ -105,10 +105,10 @@ void Init_LCD()
     LCD_C_init(LCD_C_BASE, &initParams);
     // LCD Operation - VLCD generated internally, V2-V4 generated internally, v5 to ground
 
-    LCD_C_setPinAsLCDFunctionEx(LCD_C_BASE, LCD_C_SEGMENT_LINE_0,
+    LCD_C_setPinAsLCDFunctionEx(LCD_C_BASE, LCD_C_SEGMENT_LINE_4,
                                 LCD_C_SEGMENT_LINE_21);
     LCD_C_setPinAsLCDFunctionEx(LCD_C_BASE, LCD_C_SEGMENT_LINE_26,
-                                LCD_C_SEGMENT_LINE_43);
+                                LCD_C_SEGMENT_LINE_39);
 
     LCD_C_setVLCDSource(LCD_C_BASE, LCD_C_VLCD_GENERATED_INTERNALLY,
                         LCD_C_V2V3V4_GENERATED_INTERNALLY_NOT_SWITCHED_TO_PINS,
