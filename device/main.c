@@ -4,18 +4,46 @@
 
 #define LED BIT0
 
+#define EPD_TEST
+
+#ifdef EPD_TEST
+
 const uint8_t image[EPD_IMAGE_BYTES];
 
-static void show_test_image(void)
+static void show_chessboard_image(int inv)
 {
 	uint8_t* im = (uint8_t*)image;
 	int i, j;
 	for (i = 0; i < EPD_H; ++i) {
 		for (j = 0; j < EPD_LINE_BYTES; ++j) {
-			im[i * EPD_LINE_BYTES + j] = (i / 8 + j) & 1 ? ~0 : 0;
+			im[i * EPD_LINE_BYTES + j] = ((i / 8 + j) & 1) == inv ? ~0 : 0;
 		}
 	}
 	ep_display_image(image);
+}
+
+static void show_lattice(void)
+{
+	uint8_t* im = (uint8_t*)image;
+	int i, j;
+	for (i = 0; i < EPD_H; ++i) {
+		for (j = 0; j < EPD_LINE_BYTES; ++j) {
+			im[i * EPD_LINE_BYTES + j] = !(i & 7) ? 0xff : 1;
+		}
+	}
+	ep_display_image(image);
+}
+
+#endif
+
+static void RTC_Init(void)
+{
+	// RTC setup
+	RTCCTL0_H = RTCKEY_H;	// Unlock RTC key protected registers
+	RTCCTL0_L = RTCRDYIE;	// Real-time clock ready interrupt enable
+	RTCCTL1 = RTCMODE;	// to trigger interrupt every second
+	RTCCTL1 &= ~RTCHOLD;	// Start RTC calendar mode
+	RTCCTL0_H = 0;		// Lock RTC key protected registers
 }
 
 int main(void)
@@ -25,23 +53,25 @@ int main(void)
 	// GPIO Setup
 	P1DIR = LED; // For LED
 
-	// RTC setup
-	RTCCTL0_H = RTCKEY_H;	// Unlock RTC key protected registers
-	RTCCTL0_L = RTCRDYIE;	// Real-time clock ready interrupt enable
-	RTCCTL1 = RTCMODE;	// to trigger interrupt every second
-	RTCCTL1 &= ~RTCHOLD;	// Start RTC calendar mode
-	RTCCTL0_H = 0;		// Lock RTC key protected registers
+	RTC_Init();
 
 	Init_LCD();
 	displayText("HELLO");
 
 	ep_display_init();
 
-	show_test_image();
-
+#ifdef EPD_TEST
+	for (;;) {
+		show_chessboard_image(0);
+		__delay_cycles(60000000);
+		show_lattice();
+		__delay_cycles(60000000);
+	}
+#else
 	for (;;) {
 		__bis_SR_register(LPM3_bits + GIE); // Enter LPM3, enable interrupts
 	}
+#endif
 }
 
 // RTC Interrupt Service Routine
